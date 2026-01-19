@@ -8,12 +8,14 @@ Built for Render Deployment with Custom Claude FastAPI Integration + Flask Healt
 import os
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 from collections import defaultdict
 import traceback
 import requests
 import threading
+import signal
+import sys
 from flask import Flask, jsonify
 
 from telegram import Update, User
@@ -50,13 +52,13 @@ def home():
         'bot': 'Advanced AI Telegram Bot',
         'version': '2.0',
         'api': 'Custom Claude Sonnet FastAPI',
-        'timestamp': datetime.utcnow().isoformat()
+        'timestamp': datetime.now(timezone.utc).isoformat()
     })
 
 @flask_app.route('/health')
 def health():
     """Health check for monitoring"""
-    return jsonify({'status': 'healthy', 'timestamp': datetime.utcnow().isoformat()})
+    return jsonify({'status': 'healthy', 'timestamp': datetime.now(timezone.utc).isoformat()})
 
 def run_flask():
     """Run Flask server in background thread"""
@@ -558,36 +560,28 @@ class AdvancedTelegramBot:
         # Error handler
         self.application.add_error_handler(self.error_handler)
     
-    async def run(self):
-        """Start the bot"""
+    def run(self):
+        """Start the bot using run_polling (blocking call)"""
         self.application = Application.builder().token(self.bot_token).build()
         
         self.setup_handlers()
         
         logger.info("🤖 Advanced AI Telegram Bot Starting...")
         logger.info(f"🌐 API URL: {self.api_url}")
-        
-        await self.application.initialize()
-        await self.application.start()
-        await self.application.updater.start_polling(
-            allowed_updates=Update.ALL_TYPES,
-            drop_pending_updates=True
-        )
-        
         logger.info("✅ Bot is running! Press Ctrl+C to stop.")
-    
-    async def stop(self):
-        """Stop the bot gracefully"""
-        if self.application:
-            await self.application.updater.stop()
-            await self.application.stop()
-            await self.application.shutdown()
+        
+        # Run polling (blocking call - keeps running)
+        self.application.run_polling(
+            allowed_updates=Update.ALL_TYPES,
+            drop_pending_updates=True,
+            close_loop=False
+        )
 
 # ============================================================================
 # MAIN EXECUTION
 # ============================================================================
 
-async def main():
+def main():
     """
     Main function to run the bot
     
@@ -622,19 +616,24 @@ async def main():
         channel_id=channel_id
     )
     
-    try:
-        await bot.run()
-    except KeyboardInterrupt:
+    # Handle signals for graceful shutdown
+    def signal_handler(sig, frame):
         logger.info("\n\n🛑 Shutting down gracefully...")
-        await bot.stop()
         logger.info("✅ Bot stopped!")
+        sys.exit(0)
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
+    # Run bot (blocking call)
+    try:
+        bot.run()
+    except KeyboardInterrupt:
+        logger.info("\n🛑 Bot terminated")
+    except Exception as e:
+        logger.error(f"❌ Fatal error: {e}")
+        logger.error(traceback.format_exc())
+        sys.exit(1)
 
 if __name__ == "__main__":
-    import asyncio
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\n🛑 Bot terminated")
-    except Exception as e:
-        print(f"❌ Fatal error: {e}")
-        print(traceback.format_exc())
+    main()
