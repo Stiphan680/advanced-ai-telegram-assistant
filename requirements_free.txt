@@ -1,0 +1,22 @@
+# Telegram Bot Framework
+python-telegram-bot==21.0
+
+# Google Gemini API (FREE)
+google-generativeai==0.3.0
+
+# Mistral AI (FREE)
+mistralai==0.0.15
+
+# For local Ollama (optional - 100% offline)
+requests==2.31.0
+
+# Utilities
+python-dotenv==1.0.0
+aiohttp==3.9.1
+
+# Logging
+python-json-logger==2.0.7
+
+# Development
+pytest==7.4.3
+pytest-asyncio==0.21.1
