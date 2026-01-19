@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Advanced AI Telegram Bot with Memory System, Coding Expertise & Creative Intelligence
-Built for Render Deployment with Custom Claude FastAPI Integration
+Built for Render Deployment with Custom Claude FastAPI Integration + Flask Health Check
 """
 
 import os
@@ -13,6 +13,8 @@ from typing import Dict, List, Optional
 from collections import defaultdict
 import traceback
 import requests
+import threading
+from flask import Flask, jsonify
 
 from telegram import Update, User
 from telegram.ext import (
@@ -33,6 +35,33 @@ logging.basicConfig(
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
+# ============================================================================
+# FLASK HEALTH CHECK SERVER (For Render Web Service)
+# ============================================================================
+
+flask_app = Flask(__name__)
+
+@flask_app.route('/')
+def home():
+    """Health check endpoint"""
+    return jsonify({
+        'status': 'running',
+        'bot': 'Advanced AI Telegram Bot',
+        'version': '2.0',
+        'api': 'Custom Claude Sonnet FastAPI',
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
+@flask_app.route('/health')
+def health():
+    """Health check for monitoring"""
+    return jsonify({'status': 'healthy', 'timestamp': datetime.utcnow().isoformat()})
+
+def run_flask():
+    """Run Flask server in background thread"""
+    port = int(os.getenv('PORT', 10000))
+    flask_app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
 
 # ============================================================================
 # PERSONALITY & SYSTEM PROMPTS
@@ -566,6 +595,7 @@ async def main():
     - TELEGRAM_BOT_TOKEN: Your Telegram bot token
     - CUSTOM_API_URL: Your custom FastAPI endpoint (default: https://claude-sonnet-fastapi.onrender.com/chat)
     - CHANNEL_ID: (Optional) Telegram channel ID for updates
+    - PORT: (Optional) Flask server port (default: 10000)
     """
     
     # Get credentials from environment
@@ -579,6 +609,11 @@ async def main():
     
     logger.info("🚀 Initializing Advanced AI Telegram Bot...")
     logger.info(f"🌐 Using Custom API: {api_url}")
+    
+    # Start Flask server in background thread
+    flask_thread = threading.Thread(target=run_flask, daemon=True)
+    flask_thread.start()
+    logger.info(f"🌍 Flask health check server started on port {os.getenv('PORT', 10000)}")
     
     # Create and run bot
     bot = AdvancedTelegramBot(
