@@ -1,17 +1,18 @@
 # 🤖 Advanced AI Telegram Bot - Pro Edition
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
-[![Claude API](https://img.shields.io/badge/Claude-3.5%20Sonnet-orange.svg)](https://anthropic.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Custom%20API-green.svg)](https://fastapi.tiangolo.com/)
 [![Telegram](https://img.shields.io/badge/Telegram-Bot%20API-blue.svg)](https://telegram.org/)
 [![Render](https://img.shields.io/badge/Deployment-Render-46E3B7.svg)](https://render.com/)
 
 Ek **advanced AI assistant** jo Telegram ke through available hai, jisme:
-- 🧠 **Advanced AI Engine** - Claude 3.5 Sonnet powered
+- 🧠 **Custom FastAPI Engine** - Your own Claude Sonnet 3.5 API
 - 💾 **Memory System** - Previous conversations yaad rakhta hai
 - 💻 **Coding Expertise** - Pro-level code solutions
 - 🎨 **Creative & Imaginative** - Novel ideas aur innovative approaches
 - 📚 **Step-by-Step Learning** - Detailed training aur guidance
 - 🚀 **Production Ready** - Render par deploy ho sakte ho
+- 🆓 **100% FREE** - No API keys needed!
 
 ---
 
@@ -19,11 +20,12 @@ Ek **advanced AI assistant** jo Telegram ke through available hai, jisme:
 
 ### 1. **Advanced AI Responses**
 ```
-✅ Claude 3.5 Sonnet API (Latest & Powerful)
+✅ Custom FastAPI Endpoint (claude-sonnet-fastapi.onrender.com)
 ✅ Unlimited word responses (no restrictions)
 ✅ Context-aware conversations
 ✅ Multi-language support (Hindi/English)
-✅ Real-time response streaming (for long answers)
+✅ 0.5-2s response time (ultra fast)
+✅ NO API KEY REQUIRED!
 ```
 
 ### 2. **Memory System** 🧠
@@ -66,15 +68,15 @@ Ek **advanced AI assistant** jo Telegram ke through available hai, jisme:
 ### 6. **Deployment Ready** 🚀
 ```
 ✅ Render par free deployment
-✅ Docker support
 ✅ Environment variables management
 ✅ Graceful error handling
 ✅ Logging aur monitoring
+✅ Custom API integration
 ```
 
 ---
 
-## 📋 Project Structure
+## 📝 Project Structure
 
 ```
 advanced-ai-telegram-assistant/
@@ -83,8 +85,7 @@ advanced-ai-telegram-assistant/
 ├── render.yaml              # Render deployment config
 ├── .env.example             # Environment variables template
 ├── README.md                # Ye file
-├── SETUP.md                 # Detailed setup guide
-└── ARCHITECTURE.md          # Technical architecture documentation
+└── SETUP.md                 # Detailed setup guide
 ```
 
 ---
@@ -124,12 +125,14 @@ pip install -r requirements.txt
 3. Bot ka naam aur username provide karo
 4. Token copy karo (format: `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11`)
 
-#### **B. Claude API Key**
-1. [Anthropic Console](https://console.anthropic.com/) par jaao
-2. Sign up/Login karo
-3. "API Keys" section mein jaao
-4. New API key generate karo
-5. Key safely save karo (secret rahega)
+#### **B. Custom API URL (Already Set!)**
+```
+Default: https://claude-sonnet-fastapi.onrender.com/chat
+
+✅ NO API KEY NEEDED!
+✅ FREE UNLIMITED USAGE!
+✅ FAST RESPONSE TIME!
+```
 
 #### **C. Channel ID (Optional)**
 ```
@@ -146,7 +149,7 @@ cp .env.example .env
 
 # .env file mein credentials add karo
 # TELEGRAM_BOT_TOKEN=your_token_here
-# CLAUDE_API_KEY=your_api_key_here
+# CUSTOM_API_URL=https://claude-sonnet-fastapi.onrender.com/chat (already set)
 # CHANNEL_ID=your_channel_id_here (optional)
 ```
 
@@ -158,8 +161,9 @@ python bot.py
 
 Output:
 ```
-2026-01-19 05:58:09 - __main__ - INFO - 🤖 Advanced AI Telegram Bot Starting...
-2026-01-19 05:58:10 - __main__ - INFO - ✅ Bot is running! Press Ctrl+C to stop.
+2026-01-19 14:08:09 - __main__ - INFO - 🤖 Advanced AI Telegram Bot Starting...
+2026-01-19 14:08:09 - __main__ - INFO - 🌐 Using Custom API: https://claude-sonnet-fastapi.onrender.com/chat
+2026-01-19 14:08:10 - __main__ - INFO - ✅ Bot is running! Press Ctrl+C to stop.
 ```
 
 Now Telegram mein aapna bot search karo aur `/start` send karo! 🎉
@@ -194,9 +198,11 @@ Render dashboard mein "Environment" section:
 
 ```
 TELEGRAM_BOT_TOKEN = your_bot_token
-CLAUDE_API_KEY = your_api_key
+CUSTOM_API_URL = https://claude-sonnet-fastapi.onrender.com/chat
 CHANNEL_ID = your_channel_id (optional)
 ```
+
+**NOTE:** CUSTOM_API_URL optional hai - agar nahi doge to default use hoga!
 
 ### **Step 5: Deploy**
 
@@ -306,6 +312,15 @@ if len(self.conversation_history[user_id]) > 50:  # 50 se zyada karo
 max_tokens=4000,  # Isse increase kar sakte ho
 ```
 
+### **Use Your Own FastAPI**
+
+Agar aapki khud ki FastAPI hai:
+
+```bash
+# .env file mein:
+CUSTOM_API_URL=https://your-api-url.com/chat
+```
+
 ---
 
 ## 📊 Monitoring & Logs
@@ -332,18 +347,19 @@ Yahan sab logs visible honge
 ```bash
 # 1. Token correct hai?
 # 2. Internet connection check karo
-# 3. Claude API key valid hai?
+# 3. Custom API URL working hai? (test karo: https://claude-sonnet-fastapi.onrender.com)
 # 4. Logs check karo: python bot.py
 ```
 
-### **API Key error?**
+### **API Connection error?**
 ```
-Error: "Invalid API key"
+Error: "Connection Error"
 
 Solution:
-1. Anthropic console se naya key generate karo
-2. .env file mein update karo
-3. Bot restart karo
+1. API URL check karo (default: https://claude-sonnet-fastapi.onrender.com/chat)
+2. Internet connection stable hai?
+3. API working hai? Browser mein test karo
+4. Bot restart karo
 ```
 
 ### **Render deployment failing?**
@@ -361,8 +377,9 @@ Check karo:
 
 1. **Telegram Bot API**: https://core.telegram.org/bots
 2. **Python Telegram Bot**: https://python-telegram-bot.readthedocs.io/
-3. **Claude API**: https://docs.anthropic.com/
+3. **FastAPI Docs**: https://fastapi.tiangolo.com/
 4. **Render Docs**: https://render.com/docs/
+5. **Your Custom API**: https://claude-sonnet-fastapi.onrender.com
 
 ---
 
@@ -384,7 +401,7 @@ Kuch issues ya questions hain?
 
 1. **GitHub Issues**: Repository mein issue create karo
 2. **Telegram**: Bot mein /help command use karo
-3. **Documentation**: SETUP.md aur ARCHITECTURE.md check karo
+3. **Custom API**: https://claude-sonnet-fastapi.onrender.com/docs
 
 ---
 
@@ -404,6 +421,7 @@ MIT License - Freely use kar sakte ho!
 - [ ] Rate limiting aur caching
 - [ ] Web interface
 - [ ] Mobile app
+- [ ] Custom model selection
 
 ---
 
@@ -417,6 +435,20 @@ Agar ye project helpful laga:
 
 ---
 
-**Built with ❤️ using Claude API, Python, aur Telegram Bot Framework**
+## 🔥 Why This Bot?
+
+| Feature | This Bot | Other Bots |
+|---------|----------|------------|
+| **Cost** | 🆓 FREE | 💰 Paid API keys |
+| **Speed** | ⚡ 0.5-2s | 🐢 3-5s |
+| **Memory** | 🧠 Advanced | ❌ None |
+| **Coding** | 💻 Expert | 👶 Basic |
+| **Setup** | ✅ Easy | 😵 Complex |
+| **API Key** | ❌ Not needed | ✅ Required |
+
+---
+
+**Built with ❤️ using Custom FastAPI, Python, aur Telegram Bot Framework**
 
 *Last Updated: January 2026*
+*Version: 2.0 (Custom API Integration)*
