@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Advanced AI Telegram Bot with Memory System, Coding Expertise & Creative Intelligence
-Built for Render Deployment with Claude API Integration
+Built for Render Deployment with Custom Claude FastAPI Integration
 """
 
 import os
@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import Dict, List, Optional
 from collections import defaultdict
 import traceback
+import requests
 
 from telegram import Update, User
 from telegram.ext import (
@@ -22,7 +23,6 @@ from telegram.ext import (
     ContextTypes,
     ConversationHandler
 )
-import anthropic
 
 # ============================================================================
 # LOGGING CONFIGURATION
@@ -175,16 +175,15 @@ class MemorySystem:
         return summary
 
 # ============================================================================
-# CLAUDE API WRAPPER - Advanced AI Engine
+# CUSTOM API WRAPPER - Your FastAPI Integration
 # ============================================================================
 
-class AdvancedAIEngine:
-    """Advanced AI Engine using Claude API with streaming support"""
+class CustomAPIEngine:
+    """Custom AI Engine using your FastAPI endpoint"""
     
-    def __init__(self, api_key: str):
-        self.client = anthropic.Anthropic(api_key=api_key)
-        self.model = "claude-3-5-sonnet-20241022"
-    
+    def __init__(self, api_url: str):
+        self.api_url = api_url
+        
     def generate_response(
         self,
         user_message: str,
@@ -192,14 +191,21 @@ class AdvancedAIEngine:
         user_context: str = "",
         system_prompt: str = SYSTEM_PROMPT
     ) -> str:
-        """Generate response using Claude with full context"""
+        """Generate response using your custom FastAPI"""
         
         try:
-            # Build messages with context
+            # Build messages array
             messages = []
             
-            # Add recent conversation history
-            for msg in conversation_history[-6:]:  # Last 3 exchanges
+            # Add system prompt as first message
+            enhanced_system = system_prompt + "\n" + user_context
+            messages.append({
+                "role": "system",
+                "content": enhanced_system
+            })
+            
+            # Add recent conversation history (last 3 exchanges = 6 messages)
+            for msg in conversation_history[-6:]:
                 messages.append({
                     "role": msg['role'],
                     "content": msg['content']
@@ -211,22 +217,41 @@ class AdvancedAIEngine:
                 "content": user_message
             })
             
-            # Enhanced system prompt with context
-            enhanced_system = system_prompt + user_context
+            # Prepare payload for your API
+            payload = {
+                "messages": messages,
+                "max_tokens": 4000,
+                "temperature": 0.7,
+                "stream": False
+            }
             
-            # Call Claude API
-            response = self.client.messages.create(
-                model=self.model,
-                max_tokens=4000,  # Allow longer responses
-                system=enhanced_system,
-                messages=messages
+            # Call your FastAPI
+            response = requests.post(
+                self.api_url,
+                json=payload,
+                headers={
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'TelegramBot/1.0'
+                },
+                timeout=60
             )
             
-            return response.content[0].text
+            # Check response
+            if response.status_code == 200:
+                data = response.json()
+                return data.get('content', 'No response received')
+            else:
+                logger.error(f"API Error: Status {response.status_code}")
+                return f"❌ API Error: Status code {response.status_code}\n\nKripya baad mein try kijiye."
         
-        except anthropic.APIError as e:
-            logger.error(f"Claude API Error: {str(e)}")
-            return f"❌ API Error: {str(e)}\n\nKripya baad mein try kijiye."
+        except requests.Timeout:
+            logger.error("API Timeout")
+            return "⚠️ Request timeout ho gaya. Please try again!"
+        
+        except requests.RequestException as e:
+            logger.error(f"API Request Error: {str(e)}")
+            return f"❌ Connection Error: {str(e)}\n\nKripya baad mein try kijiye."
+        
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}")
             return f"❌ Unexpected error: {str(e)}\n\n{traceback.format_exc()}"
@@ -236,14 +261,14 @@ class AdvancedAIEngine:
 # ============================================================================
 
 class AdvancedTelegramBot:
-    """Advanced Telegram Bot with all features integrated"""
+    """Advanced Telegram Bot with custom API integration"""
     
-    def __init__(self, bot_token: str, claude_key: str, channel_id: str = None):
+    def __init__(self, bot_token: str, api_url: str, channel_id: str = None):
         self.bot_token = bot_token
-        self.claude_key = claude_key
+        self.api_url = api_url
         self.channel_id = channel_id
         self.memory = MemorySystem()
-        self.ai_engine = AdvancedAIEngine(claude_key)
+        self.ai_engine = CustomAPIEngine(api_url)
         self.application = None
     
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -264,6 +289,8 @@ class AdvancedTelegramBot:
 ║  🧠 Memory system - tumhare previous chats yaad rakhta   ║
 ║  ⚡ Mushkil se mushkil problems pro-level solve karta   ║
 ║  💬 Friendly, detailed aur informative responses          ║
+║                                                            ║
+║  🚀 Powered by Custom Claude Sonnet FastAPI 🚀            ║
 ║                                                            ║
 ║  Commands:                                                 ║
 ║  /help - Sab features janne ke liye                       ║
@@ -416,7 +443,7 @@ class AdvancedTelegramBot:
             # Get conversation history
             history = self.memory.conversation_history.get(user_id, [])
             
-            # Generate response using Claude
+            # Generate response using your custom API
             response = self.ai_engine.generate_response(
                 user_message=message_text,
                 conversation_history=history,
@@ -436,9 +463,9 @@ class AdvancedTelegramBot:
                         # Small delay between messages
                         import asyncio
                         await asyncio.sleep(0.5)
-                    await update.message.reply_text(chunk, parse_mode='Markdown')
+                    await update.message.reply_text(chunk)
             else:
-                await update.message.reply_text(response, parse_mode='Markdown')
+                await update.message.reply_text(response)
             
             # Send update to channel
             if self.channel_id:
@@ -473,8 +500,7 @@ class AdvancedTelegramBot:
             await update.message.reply_text(
                 f"📢 **Updates Channel Join Karo!**\n\n"
                 f"New features, tips aur latest updates ke liye:\n"
-                f"[Join Channel]({channel_link})",
-                parse_mode='Markdown'
+                f"{channel_link}"
             )
         else:
             await update.message.reply_text(
@@ -510,7 +536,7 @@ class AdvancedTelegramBot:
         self.setup_handlers()
         
         logger.info("🤖 Advanced AI Telegram Bot Starting...")
-        logger.info(f"Bot username will be available after startup")
+        logger.info(f"🌐 API URL: {self.api_url}")
         
         await self.application.initialize()
         await self.application.start()
@@ -538,27 +564,26 @@ async def main():
     
     Environment Variables Required:
     - TELEGRAM_BOT_TOKEN: Your Telegram bot token
-    - CLAUDE_API_KEY: Your Anthropic Claude API key
+    - CUSTOM_API_URL: Your custom FastAPI endpoint (default: https://claude-sonnet-fastapi.onrender.com/chat)
     - CHANNEL_ID: (Optional) Telegram channel ID for updates
     """
     
     # Get credentials from environment
     bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
-    claude_key = os.getenv('CLAUDE_API_KEY')
+    api_url = os.getenv('CUSTOM_API_URL', 'https://claude-sonnet-fastapi.onrender.com/chat')
     channel_id = os.getenv('CHANNEL_ID')
     
     # Validate credentials
     if not bot_token:
         raise ValueError("❌ TELEGRAM_BOT_TOKEN environment variable not set!")
-    if not claude_key:
-        raise ValueError("❌ CLAUDE_API_KEY environment variable not set!")
     
     logger.info("🚀 Initializing Advanced AI Telegram Bot...")
+    logger.info(f"🌐 Using Custom API: {api_url}")
     
     # Create and run bot
     bot = AdvancedTelegramBot(
         bot_token=bot_token,
-        claude_key=claude_key,
+        api_url=api_url,
         channel_id=channel_id
     )
     
