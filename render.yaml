@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: advanced-ai-bot
+    runtime: python3
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python bot.py"
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        scope: run
+        value: # Set this in Render dashboard
+      - key: CLAUDE_API_KEY
+        scope: run
+        value: # Set this in Render dashboard
+      - key: CHANNEL_ID
+        scope: run
+        value: # Optional - Set this in Render dashboard
+
+env:
+  - key: PORT
+    value: "8000"
